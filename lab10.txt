@@ -1,0 +1,192 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+lab 5:
+
+Aim:Create private registry on local host and push any image in private registry
+
+Browse for ECS (Elastic container service) and create cluster for EC2 instance type 
+After that create task definitions for the respective cluster
+Deploy the created task and check for the running instances in EC2
+Connect the instance using the third-party connection using the SSH client in your windows powershell
+Note: - To connect the SSH client the key.pem pair should be installed in your system otherwise it will deny the permission to connect.
+Cmd: $docker ps 
+To show the image we installed (httpd)
+
+To delete the task first deregister the service it will delete automatically and then delete the cluster until it gets inactive
+
+Step 6: Create second cluster for Fargate(serverless) 
+
+Create task definitions 
+Deploy the task 
+Go to cluster>task>click on the task>open the public ip address to know whether the service is working or not 
+Deregister the task and delete the cluster 
+
+
+
+
+
+
+
+lab 6:
+Install Docker Compose package on docker then create and run multi- container applications using Docker Compose.
+
+
+# curl -SL
+https://github.com/docker/compose/releases/download/v2.24.6/do ckercompose-linux-x86_64 -o /usr/local/bin/docker-compose
+#chmod +x /usr/local/bin/docker-compose #docker compose version
+#mkdir composetest 
+#cd composetest
+ sudo nano app.py
+
+
+import time 
+import redis
+from flask import Flask
+app - Flask(_name_)
+cache = redis.Redis(host='redis', port=6379)
+def get_hit_count():
+   retries = 5
+   while True:
+         try:
+            return cache.incr('hits')
+        except redis.exception.ConnectionError as exc:
+          if retries == 0:
+         raise exc
+retries -=1
+      time.sleep(0.5)
+@app.route('/')
+def hello():
+    count = get_hit_count()
+    return 'Hello World! I have been seen{} times.\n' .format(count)
+
+# sudo nano requirements.txt
+  
+ flask
+ redis
+
+
+#sudo nano Dockerfile 
+
+FROM python:3.10-alpine
+WORKDIR /code
+ENV FLASK_APP=app.py
+ENV FLASK_RUN_HOST=0.0.0.0
+RUN apk add --no-cache gcc mus1-dev linux-headers
+COPY requirements.txt requirements.txt
+RUN pip install -r requirements.txt
+EXPOSE 5000
+COPY . .
+CMD ["flask", "run"]
+
+# sudo nano compose.yml
+
+
+services:
+  web:
+    build:
+    ports:
+      - "8000:5000
+redis:
+image: "redis:alpine"
+   
+
+#ls
+#docker compose up
+
+Enter http://PublicIP:8000/ in a browser to see the application running.
+
+
+
+
+
+lab 8:
+aim : Install Docker Compose package on docker then create and run multi-container applications using Docker Compose
+
+
+docker swarm join-token worker
+docker info 
+docker swarm init 
+#docker info 
+docker service create alpine ping www.google.com
+docker service ls 
+docker container ls 
+docker node ls
+docker service scale (service-id) =no. of replicas(5) 
+docker service ps service_id 
+docker service rollback service_id
+docker node ls
+docker service create –-replicas 5 alpine ping www.dypiu.ac.in 
+docker swarm leave 
+docker node rm Service_id 
+docker node rm Service_id service_id service_id
+
+
+
+
+lab 9:
+AIM: : Build Image with two dependencies (Flask, Redis) and create container with 5 replicas with docker stack
+
+cmds:
+Step 2: Launch one manager node and 3 worker nodes 
+Step 3: -Check the status of docker swarm, basically it should be inactive 
+Cmd: #docker info 
+Step 4: - After checking the status initialize the docker swarm
+Cmd: - #docker swarm init 
+Step 5:  Check the docker swarm status, it should be active 
+Cmd: #docker info 
+Step 6: Add the worker token to every worker node to join swarm manager
+Cmd: docker swarm join-token worker
+Step 7: Now make directory of any name and make file of app.py, Dockerfile, dockerswarm.yml, and requirements.txt
+cmd: #mkdir dockerstack 
+     #cd dockerstack
+     # nano requirements.txt
+     # nano Dockerfile
+     # nano app.py
+Step 8: Build the image 
+Cmd: docker build -t server:latest .
+Step 9: Check the image by listing it 
+Cmd: docker images
+Step 10: Tagging the image to docker hub 
+Cmd: Docker tag server:latest(image name and its tag) disha1800/server:latest (dockerhub repo name and imagetag)
+Step 11: Push the image to the docker hub 
+Cmd: docker push disha1800/server:latest 
+#docker images
+Step 13: Deploy the docker stack through yaml file
+Cmd: docker stack deploy -c dockerswarm.yml server
+Cmd: docker services ls
+
+Step 15: Copy the public ip paste to localhost with :5000 port 
+
+
+lab 10:
+
+Aim : "Implementing Docker Health Checks for PostgreSQL Database in a Containerized Environment".
+
+cmds:
+
+$mkdir healthcheck
+$cd healthcheck
+$docker ps -a
+$docker container run --name pg1 -e POSTGRES_PASSWORD=mypassword -d postgres
+$docker ps -a
+$docker container run --name pg2 -e POSTGRES_PASSWORD=mypassword --health-cmd="pg_isready -u postgres || exit" -d postgres
+$docker ps -a (health: starting)
+#exit
+$docker container run --name pg3 -e POSTGRES_PASSWORD=mypassword --health-cmd="pg_isready -u root || exit" -d postgres
+$docker ps -a (health: status(healthy/unhealthy))
+
+
